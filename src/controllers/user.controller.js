@@ -10,3 +10,4 @@ export const handleUserSignUp = async (req, res, next) => {
   const user = await userSignUp(bodyToUser(req.body));
   res.status(StatusCodes.OK).json({ result: user });
 };
+

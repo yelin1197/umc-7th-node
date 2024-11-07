@@ -31,3 +31,4 @@ export const userSignUp = async (data) => {
 
   return responseFromUser({ user, preferences });
 };
+

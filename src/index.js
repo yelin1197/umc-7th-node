@@ -22,3 +22,5 @@ app.post("/api/v1/users/signup", handleUserSignUp);
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
