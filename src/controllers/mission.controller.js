@@ -1,4 +1,3 @@
-
 import { getUserOngoingMissions } from '../services/mission.service.js';
 import { completeMission } from '../services/mission.service.js';
 
