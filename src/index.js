@@ -3,21 +3,20 @@ import dotenv from "dotenv";
 import express from "express";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import { handleListStoreReviews } from "./controllers/store.controller.js";
+import { getUserOngoingMissionsController, completeMissionController } from './controllers/mission.controller.js';
+import { getUserReviews } from './controllers/review.controller.js';
 import swaggerAutogen from "swagger-autogen";
 import swaggerUiExpress from "swagger-ui-express";
-
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
 
 //공통 응답을 사용할 수 있는 헬퍼 함수 등록
- 
 app.use((req, res, next) => {
   res.success = (success) => {
     return res.json({ resultType: "SUCCESS", error: null, success });
   };
-
   res.error = ({ errorCode = "unknown", reason = null, data = null }) => {
     return res.json({
       resultType: "FAIL",
@@ -25,7 +24,6 @@ app.use((req, res, next) => {
       success: null,
     });
   };
-
   next();
 });
 
@@ -38,15 +36,11 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/api/v1/users/signup", handleUserSignUp);
-
-//전역 오류를 처리하기 위한 미들웨어
- 
+//전역 오류를 처리하기 위한 미들웨어 
 app.use((err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
   }
-
   res.status(err.statusCode || 500).error({
     errorCode: err.errorCode || "unknown",
     reason: err.reason || err.message || null,
@@ -54,12 +48,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
-
-app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
 
 app.use(
   "/docs",
@@ -87,7 +78,12 @@ app.get("/openapi.json", async (req, res, next) => {
     },
     host: "localhost:3000",
   };
-
   const result = await swaggerAutogen(options)(outputFile, routes, doc);
   res.json(result ? result.data : null);
 });
+
+app.post("/api/v1/users/signup", handleUserSignUp); //회원가입
+app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews); //리뷰 확인
+app.get('/api/v1/users/:userId/missions', getUserOngoingMissionsController); // 진행 중인 미션 조회
+app.post('/api/v1/users/:userId/missions/:missionId/complete', completeMissionController); // 미션 완료
+app.get('/api/v1/users/:userId/reviews', getUserReviews); // 사용자 리뷰 조회
